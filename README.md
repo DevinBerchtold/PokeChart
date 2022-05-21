@@ -1,9 +1,3 @@
----
-title: PokéChart Readme
-author: Devin Berchtold
-date: 5/18/22
----
-
 # PokéChart
 
 PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart which represents the primary colors in a Pokémon.
@@ -12,7 +6,7 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 * Generate charts for Pokémon images and data downloaded from the internet
 * Play 'Who's that Pokémon?' and connect the colorful charts to Pokémon you know and love
 
-![Starter Pokémon color representations](image_outs4.png "Starter Pokémon")
+![Starter Pokémon color representations](image_outs.png "Starter Pokémon")
 
 <br/>
 
@@ -52,7 +46,9 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 *Requires Pokédex data to be downloaded. Charts can be pregenerated or generated dynamically.*
 
 1. Run [`who.py`](#whopy)
+
 <details>
+
 <summary>Details (Click to expand)</summary>
 
 **Syntax:**
@@ -71,8 +67,8 @@ D: Caterpie
 E: Marowak
 * Showing clue. Close to reveal answer *
 ```
-<!-- ![Colored circle clue](art/art_094_image.png "Clue 094 (Pika)") -->
-<img src="art/art_094_image.png" alt="Answer 094 (Pika)" width="160"/>
+![Colored circle clue](https://www.serebii.net/art/th/94.png "Clue 094 (Gengar)")
+<!-- <img src="https://www.serebii.net/art/th/94.png" alt="Answer 094 (Gengar)" width="160"/> -->
 
 <br/>
 
@@ -82,8 +78,8 @@ It is said to emerge from darkness to steal the
 lives of those who become lost in mountains.
 ```
 
-<!-- ![Gengar art](art/art_094.png "Answer 094 (Gengar)") -->
-<img src="art/art_094.png" alt="Answer 094 (Gengar)" width="192"/>
+![Gengar art](art_094_image.png "Answer 094 (Gengar)")
+<!-- <img src="art_094.png" alt="Answer 094 (Gengar)" width="192"/> -->
 
 </details>
 
@@ -92,13 +88,16 @@ lives of those who become lost in mountains.
 ## Main Files
 
 `scrape.py` will download Pokédex data that is used by `generate.py` and `who.py`.
-
+<!-- A((&lt;img src&#61&#39;art/art_094.png&#39; width&#61&#39;70&#39;/&gt;))  -->
+<!-- C((&lt;img src&#61&#39;output/image_circle_ghost.png&#39; width&#61&#39;100&#39;/&gt;)) -->
+<!-- T((&lt;img src&#61&#39;output/image_type_ghost.png&#39; width&#61&#39;60&#39;/&gt;)) -->
+<!-- I((&lt;img src&#61&#39;art/art_094_image.png&#39; width&#61&#39;60&#39;/&gt;)) -->
 ```mermaid
 graph LR
     %%   &lt; is "<"    &#61; is "="    &#39; is "'"    &gt; is ">"
     subgraph Download Input Pokédex Data
         S(scrape.py)
-        A((&lt;img src&#61&#39;art/art_094.png&#39; width&#61&#39;70&#39;/&gt;)) 
+        A[art/art_094.png]
         D[(pokedex.json)]
         S ==>|append| D
         S ==>|download| A
@@ -106,9 +105,9 @@ graph LR
     subgraph Generate Output Pokémon Images
         W(who.py)
         G(generate.py)
-        C((&lt;img src&#61&#39;output/image_circle_ghost.png&#39; width&#61&#39;100&#39;/&gt;))
-        T((&lt;img src&#61&#39;output/image_type_ghost.png&#39; width&#61&#39;60&#39;/&gt;))
-        I((&lt;img src&#61&#39;art/art_094_image.png&#39; width&#61&#39;60&#39;/&gt;))
+        C[image_circle_ghost.png]
+        T[output/image_type_ghost.png]
+        I[art/art_094_image.png]
         W ==>|image missing?| I
         I .->|read| W
         G ==>|SAVE_POKES| I
