@@ -1,0 +1,8 @@
+__pycache__/
+output/
+old/
+art/
+icon/
+ss/
+pokedex.json
+pokedex.yaml
