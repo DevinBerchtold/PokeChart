@@ -1,16 +1,16 @@
 # Download data and store locally
 
 import json
-from pprint import pprint
 import time
 import requests
-from os.path import exists
-import yaml
+import os
+# import yaml
 
 first_pokemon = 1
 last_pokemon = 905
 pokemon_numbers =list(range(first_pokemon, last_pokemon + 1))
 fail_pokemon = first_pokemon
+dex_source = '(?):'
 
 # These aren't in PokeDexAPI yet
 pokemon_overrides = {
@@ -79,35 +79,38 @@ def get(path):
 
 def get_pokemon(num):
     # https://pokeapi.co/api/v2/pokemon/{id or name}/
+    lang = 'en'
+    global dex_source
     pokemon_species = get(f'https://pokeapi.co/api/v2/pokemon-species/{num}/')
-    # pprint(pokemon_species)
     pokemon_data = get(f'https://pokeapi.co/api/v2/pokemon/{num}')
-    # pprint(pokemon_data)
     pokemon = {k: pokemon_data[k] for k in ('id', 'name')}
 
     pokemon['types'] = [t['type']['name'] for t in pokemon_data['types']]
     pokemon['stats'] = {s['stat']['name']: s['base_stat'] for s in pokemon_data['stats']}
 
     for n in pokemon_species['names']:
-        if n['language']['name'] == 'en':
+        if n['language']['name'] == lang:
             pokemon['name'] = n['name']
 
+    # Get first flavor text from this list (oldest for each pokemon)
     versions = ["red","blue","yellow","gold","silver","crystal","ruby","sapphire","emerald","diamond","pearl","platinum","black","white","x","y","sun","moon","sword","shield"]
-    versions = reversed(versions)
+    versions = reversed(versions) # newest
     for v in versions:
         for n in pokemon_species['flavor_text_entries']:
-            if n['language']['name'] == 'en':
+            if n['language']['name'] == lang:
                 if n['version']['name'] == v:
                     pokemon['description'] = n['flavor_text']
-                    print(v)
+                    dex_source = f'({v}):'.ljust(11)
                     break
         else:
             continue
         break
+    if 'description' not in pokemon:
+        pokemon['description'] = 'Description unavailable'
     return pokemon
 
 def save_file(url, filename):
-    if exists(filename):
+    if os.path.exists(filename):
         print(f'{url} ==> {filename} already exists')
     else:
         file = requests.get(url).content
@@ -116,41 +119,43 @@ def save_file(url, filename):
         print(f'{url} ==> {filename} saved')
 
 dex = {}
-if exists('pokedex.json'):
+if os.path.exists('pokedex.json'):
     dex = json.load(open('pokedex.json'))
+
+# Create directories if they don't exist
+if not os.path.exists('art'):
+    os.makedirs('art')
+if not os.path.exists('ss'):
+    os.makedirs('ss')
+if not os.path.exists('output'):
+    os.makedirs('output')
 
 for n in pokemon_numbers:
     print(f'Pokemon #{n}')
     s = str(n)
-    # if str(n) in dex:
-    #     pokemon = dex[str(n)]
     if s not in dex:
         if s in pokemon_overrides:
             pokemon = pokemon_overrides[s]
-            print('Pokedex:')
-            pprint(pokemon)
-
+            print(f"Dex (hardcode): {pokemon['id']} {pokemon['name']} ({', '.join(pokemon['types'])})")
         else:
             try:
                 pokemon = get_pokemon(n)
                 time.sleep(0.1) # Slow it down so they don't get mad
-            except requests.exceptions.HTTPError:
+            except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
                 print(f'Exception on #{n}. (Pokedex is mad)')
                 break
             
-            # pokemon = {k: pokemon[k] for k in ('name','description')}
-            print('Pokedex:')
-            pprint(pokemon)
+            print(f"Dex {dex_source} {pokemon['id']} {pokemon['name']} ({', '.join(pokemon['types'])})")
 
-            try:
-                # curl https://www.serebii.net/pokemon/art/[001-905].png -o "art_#1.png"
-                save_file(f'https://www.serebii.net/pokemon/art/{n:03d}.png', f'art/art_{n:03d}.png')
+        try:
+            # curl https://www.serebii.net/pokemon/art/[001-905].png -o "art_#1.png"
+            save_file(f'https://www.serebii.net/pokemon/art/{n:03d}.png', f'art/art_{n:03d}.png')
 
-                # curl https://www.serebii.net/swordshield/pokemon/[001-905].png -o "ss_#1.png"
-                save_file(f'https://www.serebii.net/swordshield/pokemon/{n:03d}.png', f'ss/ss_{n:03d}.png')
-            except requests.exceptions.HTTPError:
-                print(f'Exception on {n}. (Serebii is mad)')
-                break
+            # curl https://www.serebii.net/swordshield/pokemon/[001-905].png -o "ss_#1.png"
+            save_file(f'https://www.serebii.net/swordshield/pokemon/{n:03d}.png', f'ss/ss_{n:03d}.png')
+        except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
+            print(f'Exception on {n}. (Serebii is mad)')
+            break
 
         print('')
 
@@ -163,24 +168,24 @@ print(f'Wrote pokedex.json with {len(dex)} Pokemon')
 
 
 # YAML copy for readability
-def str_presenter(dumper, data):
-    if len(data) > 40:
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='\"')
-    else:
-        return dumper.represent_scalar('tag:yaml.org,2002:str', data)
+# def str_presenter(dumper, data):
+#     if len(data) > 40:
+#         return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='\"')
+#     else:
+#         return dumper.represent_scalar('tag:yaml.org,2002:str', data)
 
-def list_presenter(dumper, data):
-    return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
+# def list_presenter(dumper, data):
+#     return dumper.represent_sequence('tag:yaml.org,2002:seq', data, flow_style=True)
 
-def dict_presenter(dumper, data):
-    if list(data.keys()) == ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']:
-        return dumper.represent_mapping('tag:yaml.org,2002:map', data, flow_style=True)
-    else:
-        return dumper.represent_mapping('tag:yaml.org,2002:map', data, flow_style=False)
+# def dict_presenter(dumper, data):
+#     if list(data.keys()) == ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']:
+#         return dumper.represent_mapping('tag:yaml.org,2002:map', data, flow_style=True)
+#     else:
+#         return dumper.represent_mapping('tag:yaml.org,2002:map', data, flow_style=False)
 
-yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
-yaml.representer.SafeRepresenter.add_representer(list, list_presenter)
-yaml.representer.SafeRepresenter.add_representer(dict, dict_presenter)
+# yaml.representer.SafeRepresenter.add_representer(str, str_presenter)
+# yaml.representer.SafeRepresenter.add_representer(list, list_presenter)
+# yaml.representer.SafeRepresenter.add_representer(dict, dict_presenter)
 
-yaml.safe_dump(dex, open('pokedex.yaml', 'w'), width=320, allow_unicode=False, sort_keys=False, default_flow_style=None)
-print(f'Wrote pokedex.yaml with {len(dex)} Pokemon')
+# yaml.safe_dump(dex, open('pokedex.yaml', 'w'), width=320, allow_unicode=False, sort_keys=False, default_flow_style=None)
+# print(f'Wrote pokedex.yaml with {len(dex)} Pokemon')

@@ -1,8 +1,5 @@
 from PIL import Image
 from PIL import ImageDraw
-#from matplotlib import docstring
-# from sklearn.cluster import KMeans
-# from sklearn.cluster import MiniBatchKMeans
 import sklearn.cluster as cluster
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,6 +8,8 @@ import multiprocessing as mp
 import time
 import math
 from os.path import exists
+
+
 
  ######   #######  ##    ##  ######  ########    ###    ##    ## ########  ######
 ##    ## ##     ## ###   ## ##    ##    ##      ## ##   ###   ##    ##    ##    ##
@@ -23,24 +22,23 @@ from os.path import exists
 DEBUG = False
 
 # CORES = 1
-CORES = 4
-# CORES = 6
-# CORES = 10
+# CORES = 4
+CORES = 6
+# CORES = 8
 
 CHART_SIZE = 512
 CHART_KS = (1, 3, 5)
-
 # CHART_SUPERSAMPLE = 4
 CHART_SUPERSAMPLE = 16 # More than 16 doesn't do anything
 
 FLOAT_MAX = 1.0e+64
-COLOR_REMOVE = 2
-# COLOR_QUANTIZE = 1
 COLOR_QUANTIZE = 8
+# COLOR_QUANTIZE = 1
+COLOR_REMOVE = 2
+# COLOR_REMOVE = 0
 COLOR_TRANSPARENT = (255, 255, 255, 0)
 
 GLOBAL_TABS = 0
-
 def iprint(string):
     if (string[0] != '<') and (string[0] != '>'):
         string = ' '+string
@@ -53,6 +51,10 @@ def unique_cyclic_permutations(thing, length):
         yield (thing[0],) + x
     if length < len(thing):
         yield from unique_cyclic_permutations(thing[1:], length)
+
+def dict_add(d, k, v=1):
+    '''Adds numeric value `v` (default 1) to dictionary key `d[k]`.'''
+    d[k] = d[k] + v if k in d else v
 
 def time_print(func, string, *args, **kwargs):
     print(string, end='\r')
@@ -97,8 +99,15 @@ def timed(func):
  ######   #######  ########  #######  ##     ##  ######
 
 class Colors:
+    """Describes a weighted set of colors which represents an image (without pixel locations)"""
+
     def __init__(self, quant=COLOR_QUANTIZE):
-        self.dictionary = {}
+        """Create an empty colors object.
+        
+        Args:
+            quant: The value to quantize all stored color values by.        
+        """
+        self.dictionary = {} # dict of (r, g, b): color_weight
         self._quantize = quant
 
     def __len__(self):
@@ -110,9 +119,9 @@ class Colors:
     def totalWeight(self):
         return sum(self.dictionary.values())
 
-    def add(self, color, weight):
-        # add to dictionary        default if not in dict --v
-        self.dictionary[color] = self.dictionary.get(color, 0.0) + weight
+    def add(self, color, weight=1):
+        '''Add a color '''
+        dict_add(self.dictionary, color, weight)
 
     def addDict(self, colors, frac=1.0):
         for color, weight in colors.dictionary.items():
@@ -134,7 +143,7 @@ class Colors:
                 # Add to dictionary weighted according to coverage
                 self.add(self._quant(color), (float(num) * float(frac)) / float(pixel_count))
 
-    def divide(self, divisor):
+    def divide(self, divisor:float):
         for color in self.dictionary:
             self.dictionary[color] = self.dictionary[color] / divisor.dictionary[color]
 
@@ -151,7 +160,7 @@ class Colors:
         # Sort
         self.sort() 
 
-    def removeBelow(self, t=0.01):
+    def removeBelow(self, t:float=0.01):
         self.dictionary = {k: v for k, v in self.dictionary.items() if v > t}
 
     def removeFraction(self, frac=0.02):
@@ -199,8 +208,6 @@ class Colors:
         ax.set_xlabel('Red')
         ax.set_ylabel('Green')
         ax.set_zlabel('Blue')
-        # fig.set_facecolor('dimgray') ##1e1e1e
-        # ax.set_facecolor('dimgray') ##1e1e1e
         fig.set_facecolor('#1e1e1e')
         ax.set_facecolor('#1e1e1e')
         ax.grid(False)
@@ -208,10 +215,7 @@ class Colors:
         ax.w_yaxis.pane.fill = False
         ax.w_zaxis.pane.fill = False
 
-        # Bonus: To get rid of the grid as well:
-        # ax.grid(False)
         plt.show()
-
 
 
 
@@ -284,8 +288,29 @@ def nextRow(sets, angle_steps=1, size=360):
     return best_permutation, best_score, best_angle
 
 class Chart(Colors):
+    """Extends `Colors` to includes functions for generating and saving color charts.
+
+    Attributes:
+        algorithms: Keeps statistics on algorithms.
+    """
+    if mp.current_process().name == 'MainProcess':
+        # arg0 = [10, 20, 40]
+        # arg1 = [100, 200, 400]
+        # arg2 = [2**-13, 2**-14, 2**-15]
+        # Only put a list in for testing
+        arg0, arg1, arg2 = [20], [100], [10e-4]
+        algorithms = {
+            f'KMeans{n}': { # KMeans0...KMeans26
+                'args': {'n_init': args[0],'max_iter': args[1],'tol': args[2]} # args in dictionary format to be passed into function
+            } for n, args in enumerate(it.product(arg0, arg1, arg2)) # all combinations of arguments
+        }
+        if DEBUG and len(algorithms) > 1:
+            for a in algorithms:
+                print(algorithms[a])
+
     @timed
     def _group(self, k):
+        """Run grouping algorithm (or algorithms if multiple specified)"""
         # copy arrays
         color_array = []
         weight_array = []
@@ -294,48 +319,37 @@ class Chart(Colors):
             weight_array.append(num)
         # do clustering
         #https://scikit-learn.org/stable/auto_examples/cluster/plot_cluster_comparison.html#sphx-glr-auto-examples-cluster-plot-cluster-comparison-py
+        functions = {}
+        for algo in Chart.algorithms:
+            functions[algo] = cluster.KMeans(n_clusters=k, init='k-means++', **Chart.algorithms[algo]['args'])
 
         best_inertia = FLOAT_MAX
-        best_algo = ""
+        inertias = {}
 
-        km1 = cluster.KMeans(n_clusters=k, init='k-means++', n_init=2, max_iter=300, tol=1e-4)
-        km2 = cluster.KMeans(n_clusters=k, init='k-means++', n_init=10, max_iter=300, tol=1e-4)
-        km3 = cluster.KMeans(n_clusters=k, init='k-means++', n_init=50, max_iter=300, tol=1e-4)
-        km4 = cluster.KMeans(n_clusters=k, init='k-means++', n_init=250, max_iter=300, tol=1e-4)
-        km5 = cluster.KMeans(n_clusters=k, init='k-means++', n_init=1250, max_iter=300, tol=1e-4)
-        mbkm1 = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=3, max_iter=100, batch_size=1024, tol=0.0)
-        mbkm2 = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=3, max_iter=100, batch_size=1024, tol=1e-3)
-        mbkm3 = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=3, max_iter=100, batch_size=1024, tol=1e-4)
-        mbkm4 = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=3, max_iter=100, batch_size=1024, tol=1e-5)
-        mbkm5 = cluster.MiniBatchKMeans(n_clusters=k, init='k-means++', n_init=3, max_iter=100, batch_size=1024, tol=1e-6)
-        
-        algos = [
-            # ("KMeans1", km1),
-            # ("KMeans2", km2),
-            # ("KMeans3", km3),
-            # ("KMeans4", km4),
-            # ("KMeans5", km5),
-            ("MiniBatchKMeans1", mbkm1),
-            # ("MiniBatchKMeans2", mbkm2),
-            # ("MiniBatchKMeans3", mbkm3),
-            # ("MiniBatchKMeans4", mbkm4),
-            # ("MiniBatchKMeans5", mbkm5),
-        ]
+        for algo in Chart.algorithms:
+            t0 = time.time()
+            fit = functions[algo].fit(color_array, None, weight_array)
+            fit_time = time.time()-t0
+            inertias[algo] = fit.inertia_
+            
+            if fit.inertia_ < best_inertia:
+                best_inertia = fit.inertia_
+                # best_algo = algo
+                best_fit = fit
 
-        fits = {}
+            dict_add(Chart.algorithms[algo], 'inertia', fit.inertia_)
+            dict_add(Chart.algorithms[algo], 'time', fit_time)
+            dict_add(Chart.algorithms[algo], 'inertia_time', fit.inertia_*fit_time)
+            dict_add(Chart.algorithms[algo], 'iter', fit.n_iter_)
+                
+        # add one to all winners
+        for algo in Chart.algorithms:
+            if inertias[algo] == best_inertia:
+                # print(f'Winner: {algo}, Inertia: {best_fit.inertia_:g}, Iter: {best_fit.n_iter_}')
+                dict_add(Chart.algorithms[algo],'wins', 1)
 
-        for name, algo in algos:
-            # print('algo: '+name)
-            fits[name] = algo.fit(color_array, None, weight_array)
-            if fits[name].inertia_ < best_inertia:
-                best_inertia = fits[name].inertia_
-                best_algo = name
-        
-        fit = fits[best_algo]
-        # print(f'Winner: {best_algo}, Inertia: {fit.inertia_:.2}, Iter: {fit.n_iter_}/{300}')
-
-        fit_c = fit.cluster_centers_
-        fit_l = fit.labels_
+        fit_c = best_fit.cluster_centers_
+        fit_l = best_fit.labels_
         counts = np.bincount(fit_l[fit_l >= 0])
         labels = np.argsort(-counts)
 
@@ -346,23 +360,25 @@ class Chart(Colors):
             size = counts[label]
             pairs.append((color, size))
 
-        # if DEBUG: iprint(f"Grouped {len(self.dictionary)} points on iter {fit.n_iter_}/{max_iter} with {fit.n_steps_} steps: {pairs}")
-        # if DEBUG: iprint(f"Grouped {len(self.dictionary)} points on iter {fit.n_iter_}/{max_iter}: {pairs}")
-
         return pairs
 
     @timed
-    def _permuteMulti(self, processes=8):
-        # try all possible permutations and angles of each
-        pool = mp.Pool(processes)
+    def _permute(self, processes=8):
+        """With a color grouping created, find the best permutation and angle to match the previous row"""
+        if processes > 1:
+            pool = mp.Pool(processes)
 
         for i, _ in enumerate(self.sets):
             # perms = list(it.permutations(self.sets[i]))
             perms = list(unique_cyclic_permutations(self.sets[i],len(self.sets[i])))
-
-            if DEBUG: iprint(f"Checking {len(perms)} permutations at row {i} with {processes} processes")
             tasks = zip(it.repeat(self.sets[i - 1]), perms)
-            bests = pool.map(nextRow, tasks)
+
+            if processes > 1:
+                if DEBUG: iprint(f"Checking {len(perms)} permutations at row {i} with {processes} processes")
+                bests = pool.map(nextRow, tasks)
+            else:
+                if DEBUG: iprint(f"Checking {len(perms)} permutations at row {i}")
+                bests = map(nextRow, tasks)
 
             best_score = FLOAT_MAX
             best_permutation = []
@@ -376,10 +392,12 @@ class Chart(Colors):
             self.sets[i] = best_permutation
             self.start_angles[i] = (best_angle + self.start_angles[i - 1]) % 360
         if DEBUG: iprint(f"angles = {self.start_angles}")
-        pool.close()
+        if processes > 1:
+            pool.close()
 
     # @timed
     def _image(self, output_size):
+        """With a grouping already generated, make a pretty image"""
         sets = len(self.sets)
         # sizes of each circle
         draw_size = output_size * CHART_SUPERSAMPLE
@@ -413,15 +431,31 @@ class Chart(Colors):
         return img
 
     def generate(self, ks=CHART_KS, size=CHART_SIZE):
+        """Generate a chart.
+
+        Args:
+            ks: List of k values to be used for grouping.
+            size: Size of final image.
+
+        Returns:
+            A chart of size `size`.
+        """
         self.sets = []
         for k in ks:
             self.sets.append(self._group(k))
         self.start_angles = list(it.repeat(315, len(self.sets)))
-        self._permuteMulti(CORES)
+        self._permute(CORES)
         return self._image(size)
 
     @timed
     def save(self, filename, ks=CHART_KS, size=CHART_SIZE, forced=False, quiet=False):
+        """Generate a chart and save it.
+        
+        Args:
+            filename: Where to save the chart image file.
+            ks: List of k values to be used for grouping.
+            size: Size of final image.
+        """
         if exists(filename) and not forced:
             if not quiet:
                 print(f'{filename} already exists')
