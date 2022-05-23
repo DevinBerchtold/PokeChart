@@ -6,7 +6,7 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 * Generate charts for Pokémon images and data downloaded from the internet
 * Play 'Who's that Pokémon?' and connect the colorful charts to Pokémon you know and love
 
-![Starter Pokémon color representations](image_outs.png "Starter Pokémon")
+![Starter Pokémon color representations](image/starters.png "Starter Pokémon")
 
 <br/>
 
@@ -18,11 +18,13 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
     * [Pillow](https://pillow.readthedocs.io/en/stable/)
     * [Matplotlib](https://matplotlib.org/stable/index.html)
     * [NumPy](https://numpy.org/doc/stable/)
+    * [Requests](https://docs.python-requests.org/en/latest/)
 
-    If you install scikit-learn, everything else should come with:
+    If you install scikit-learn and Requests, they should pull in everything else:
 
     ```
     py -m pip install --upgrade sklearn
+    py -m pip install --upgrade requests
     ```
 
 3. Run [`scrape.py`](#scrapepy) to download input data
@@ -53,9 +55,9 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 
 **Syntax:**
 
-```py who.py <first_pokemon> <last_pokemon> <number_of_choices>```
+```py who.py -l<first_pokemon> -f<last_pokemon> -c<number_of_choices>```
 ```powershell
-py who.py 1 151 5
+py who.py -f1 -l151 -c5
 ```
 **Sample output:**
 ```
@@ -68,7 +70,6 @@ E: Marowak
 * Showing clue. Close to reveal answer *
 ```
 ![Colored circle clue](https://www.serebii.net/art/th/94.png "Clue 094 (Gengar)")
-<!-- <img src="https://www.serebii.net/art/th/94.png" alt="Answer 094 (Gengar)" width="160"/> -->
 
 <br/>
 
@@ -78,8 +79,7 @@ It is said to emerge from darkness to steal the
 lives of those who become lost in mountains.
 ```
 
-![Gengar art](art_094_image.png "Answer 094 (Gengar)")
-<!-- <img src="art_094.png" alt="Answer 094 (Gengar)" width="192"/> -->
+![Gengar chart](image/chart_094.png "Answer 094 (Gengar)")
 
 </details>
 
@@ -88,16 +88,12 @@ lives of those who become lost in mountains.
 ## Main Files
 
 `scrape.py` will download Pokédex data that is used by `generate.py` and `who.py`.
-<!-- A((&lt;img src&#61&#39;art/art_094.png&#39; width&#61&#39;70&#39;/&gt;))  -->
-<!-- C((&lt;img src&#61&#39;output/image_circle_ghost.png&#39; width&#61&#39;100&#39;/&gt;)) -->
-<!-- T((&lt;img src&#61&#39;output/image_type_ghost.png&#39; width&#61&#39;60&#39;/&gt;)) -->
-<!-- I((&lt;img src&#61&#39;art/art_094_image.png&#39; width&#61&#39;60&#39;/&gt;)) -->
+
 ```mermaid
 graph LR
-    %%   &lt; is "<"    &#61; is "="    &#39; is "'"    &gt; is ">"
     subgraph Download Input Pokédex Data
         S(scrape.py)
-        A[art/art_094.png]
+        A[art_###.png]
         D[(pokedex.json)]
         S ==>|append| D
         S ==>|download| A
@@ -105,9 +101,9 @@ graph LR
     subgraph Generate Output Pokémon Images
         W(who.py)
         G(generate.py)
-        C[image_circle_ghost.png]
-        T[output/image_type_ghost.png]
-        I[art/art_094_image.png]
+        C[image_circle_#type#.png]
+        T[image_type_#type#.png]
+        I[art_###_image.png]
         W ==>|image missing?| I
         I .->|read| W
         G ==>|SAVE_POKES| I

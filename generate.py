@@ -1,30 +1,10 @@
 from pokemon import *
+import argparse
 
 SAVE_POKES = True
 SAVE_POKES_FORCED = True
 SAVE_TYPES = True
 SAVE_SHEET = True
-
-# Pokemon numbers to process
-POKEMON_GENERATIONS = {
-    0: (1, 905), # All generations
-    1: (1, 151),
-    2: (152, 251),
-    3: (252, 386),
-    4: (387, 493),
-    5: (494, 649),
-    6: (650, 721),
-    7: (722, 807),
-    8: (808, 905)
-}
-FIRST_POKEMON, LAST_POKEMON = POKEMON_GENERATIONS[0]
-POKEMON_NUMBERS = range(FIRST_POKEMON, LAST_POKEMON + 1)
-
-# List of only Pokemon starters
-POKEMON_STARTERS = []
-for x in [1, 152, 252, 387, 495, 650, 722, 810]:
-    POKEMON_STARTERS += range(x, x + 9)
-POKEMON_NUMBERS = POKEMON_STARTERS
 
 INDIVIDUAL_KS = (1, 3, 5) # 7.047s
 # INDIVIDUAL_KS = (2, 4, 6) # 8.380s
@@ -48,9 +28,6 @@ GROUP_KS = (1, 3, 5, 7)
 GROUP_THRESHOLD = 0.10
 GROUP_CHART_SIZE = CHART_SIZE * 4
 
-# GROUP_FILENAME = f'_{PREFIX_STRING}_n{FIRST_POKEMON}-{LAST_POKEMON}_t{GROUP_THRESHOLD*100}.png'
-# INDIVIDUAL_FILENAME = f'_k{KS_STRING}_{PREFIX_STRING}r{COLOR_REMOVE:02}_q{COLOR_QUANTIZE:02}.png'
-
 INDIVIDUAL_CHART_SIZE = CHART_SIZE
 
 INDIVIDUAL_PREFIX = 'art/art_'
@@ -60,46 +37,65 @@ GROUP_PREFIX = 'output/image_type_'
 GROUP_FILENAME = '.png'
 
 # TODO: Use this
-def image_grid(imgs, rows, cols):
-    assert len(imgs) == rows*cols
-
-    w, h = imgs[0].size
-    grid = Image.new('RGB', size=(cols*w, rows*h))
-    grid_w, grid_h = grid.size
-    
-    for i, img in enumerate(imgs):
-        grid.paste(img, box=(i%cols*w, i//cols*h))
-    return grid
+# def image_grid(imgs, rows, cols):
+#     assert len(imgs) == rows*cols
+#     w, h = imgs[0].size
+#     grid = Image.new('RGB', size=(cols*w, rows*h))
+#     grid_w, grid_h = grid.size
+#     for i, img in enumerate(imgs):
+#         grid.paste(img, box=(i%cols*w, i//cols*h))
+#     return grid
 
 if __name__ == '__main__':
     if DEBUG: print('== D E B U G   O N ==\n')
+    parser = argparse.ArgumentParser(description='Which Pokemon?')
+    parser.add_argument('-f', '--first', type=int, default=POKE_GENS[1][0])
+    parser.add_argument('-l', '--last', type=int, default=POKE_GENS[1][1])
+    parser.add_argument('-g', '--gen', type=int, default=None)
+    parser.add_argument('-s', '--starters', action='store_true')
+    args = parser.parse_args() # read in args
+    if args.gen is not None:
+        args.first, args.last = POKE_GENS[args.gen]
+    poke_numbers = list(range(args.first, args.last + 1))
+    if args.starters:
+        poke_numbers = [x for x in poke_numbers if x in POKE_STARTERS]
+    print(f'First: {args.first}, Last: {args.last}, Total: {len(poke_numbers)}')
 
     print('- Input -')
 
     # build pokemon data structures
     pokes = []
-    for i in POKEMON_NUMBERS:
+    for i in poke_numbers:
         # p = Pokemon(i)
         p = time_print(Pokemon,f'Loading Pokemon #{i}... ',i)
         pokes.append(p)
 
     # normalize type colors
-    # for t in POKEMON_TYPES:
+    # for t in POKE_TYPES:
     #     if Pokemon.type_charts[t]:
     #         Pokemon.type_charts[t].divide(Pokemon.all_colors)
 
     print('\n- Output -')
     # output individual pokemon charts
     if SAVE_POKES:
+        num = len(pokes)
         t0 = time.time()
         for p in pokes:
             p.chart.save(INDIVIDUAL_PREFIX+p.string+INDIVIDUAL_FILENAME,size=INDIVIDUAL_CHART_SIZE,ks=INDIVIDUAL_KS,forced=SAVE_POKES_FORCED)
-        total = time.time()-t0
-        print(f'Saved {len(pokes)} charts in {total:.3f}s ({total/len(pokes):.3f}s each)')
+        total_time = time.time()-t0
+        print(f'Saved {num} charts in {total_time:.3f}s ({total_time/num:.3f}s each)')
+
+        if len(Chart.algorithms) > 1: # if more than one algorithm...
+            for algo in Chart.algorithms: # then print out statistics for each algorithm
+                s = Chart.algorithms[algo]
+                if 'wins' in s:
+                    print(f"{algo+':':<9} i:{s['inertia']/num:<7g} t:{s['time']/num:<8g} it:{s['inertia_time']/num:<7g} n:{s['iter']/num:<7g} w:{s['wins']}")
+                else:
+                    print(f"{algo+':':<9} i:{s['inertia']/num:<7g} t:{s['time']/num:<8g} it:{s['inertia_time']/num:<7g} n:{s['iter']/num:<7g}")
 
     # create group output images
     if SAVE_TYPES:
-        for t in POKEMON_TYPES:
+        for t in POKE_TYPES:
             # Pokemon.type_charts[t].removeBelow(GROUP_THRESHOLD)
 
             n = len(Pokemon.type_charts[t])
@@ -108,15 +104,15 @@ if __name__ == '__main__':
                 Pokemon.type_charts[t].save(filename,size=GROUP_CHART_SIZE,ks=GROUP_KS,forced=True)
 
     if SAVE_SHEET:
-        for t in POKEMON_TYPES:
+        for t in POKE_TYPES:
             num = len(Pokemon.type_groups[t])
             if num > 1:
                 space = 1.28
                 center = True
 
                 if center:
-                    n = 5  # number of extra circles each row
-                    # n = 6  # number of extra circles each row
+                    # n = 5  # number of extra circles each row
+                    n = 6  # number of extra circles each row
                     m = 9  # number of circles in the first row
                     start_radius = 0.5
                 else:
@@ -176,7 +172,7 @@ if __name__ == '__main__':
                     # print(f'{p.filename} at {a} degrees')
                     a += a_step
                     if (a >= 359.0):
-                        space = space + 0.05
+                        # space = space + 0.05
 
                         r = r + 1
                         x = m + ((r-1) * n)  # number of circles in the next row

@@ -1,57 +1,44 @@
 # Who's that Pokemon!?!
 
 from pokemon import *
-
-import sys
+import argparse
 import random
-from os.path import exists
-
-from PIL import Image
-
-# import csv
 import json
 
 if __name__ == '__main__':
-    # Default
-    first_pokemon = 1
-    last_pokemon = 905
-    num_choices = 5
-
-    # From command line
-    num_args = len(sys.argv)
-    if num_args > 2:
-        first_pokemon = int(sys.argv[1])
-        last_pokemon = int(sys.argv[2])
-        if num_args > 3:
-            num_choices = int(sys.argv[3])
+    parser = argparse.ArgumentParser(description='Which Pokemon?')
+    parser.add_argument('-f', '--first', type=int, default=POKE_GENS[1][0])
+    parser.add_argument('-l', '--last', type=int, default=POKE_GENS[1][1])
+    parser.add_argument('-g', '--gen', type=int, default=None)
+    parser.add_argument('-s', '--starters', action='store_true')
+    parser.add_argument('-c', '--choices', type=int, default=5)
+    args = parser.parse_args() # read in args
+    if args.gen is not None:
+        args.first, args.last = POKE_GENS[args.gen]
+    poke_numbers = list(range(args.first, args.last + 1))
+    if args.starters:
+        poke_numbers = [x for x in poke_numbers if x in POKE_STARTERS]
+    print(f'First: {args.first}, Last: {args.last}, Total: {len(poke_numbers)}')
 
     while True:
-        # Pool of Pokemon
-        pokemon_numbers =list(range(first_pokemon, last_pokemon + 1))
-        random.shuffle(pokemon_numbers)
+        random.shuffle(poke_numbers)
     
         print("== Who's That Pokemon!?! ==")
     
         # Load pokedex, converting string keys to integer
         dex = {int(k):v for k,v in json.load(open('pokedex.json')).items()}
     
-        choices = pokemon_numbers[:num_choices]
+        choices = poke_numbers[:args.choices] # take first n elements from list
         random.shuffle(choices)
-        letter = 'A'
+        for n, choice in enumerate(choices):
+            print( f"{chr(ord('A') + n)}: {dex[choice]['name']}")
     
-        for choice in choices:
-            print( f"{letter}: {dex[choice]['name']}")
-            letter = chr(ord(letter) + 1)
-    
-        answer = dex[pokemon_numbers[0]]
-        # pprint.pprint(answer)
-        string = format(pokemon_numbers[0], "03d")
-        # suffix = 'k135_1a32_1s0_r02_q08'
-        # filename = f'art/art_{string}_{suffix}.png'
+        answer = dex[poke_numbers[0]]
+        string = format(poke_numbers[0], "03d")
         filename = f'art/art_{string}_image.png'
     
         if not exists(filename):
-            p = Pokemon(pokemon_numbers[0])
+            p = Pokemon(poke_numbers[0])
             time_print(p.chart.save,"Chart is missing. Generating... ",filename, quiet=True)
             del p
     
