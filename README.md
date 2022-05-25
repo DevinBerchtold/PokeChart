@@ -229,15 +229,15 @@ Pokédex data scraped from PokéAPI: [pokeapi.co](https://pokeapi.co/)
 
 Images of Pokémon scraped from Serebii: [serebii.net](https://www.serebii.net/)
 
-<br/>
-
-## License
-
 Pokémon art and characters are trademarks of Nintendo:
 
 > © 2022 Pokémon. © 1995–2022 Nintendo/Creatures Inc./GAME FREAK inc. Pokémon, Pokémon character names, Nintendo Switch, Nintendo 3DS, Nintendo DS, Wii, Wii U, and WiiWare are trademarks of Nintendo. The YouTube logo is a trademark of Google Inc. Other trademarks are the property of their respective owners.
 
 [Pokémon Legal Information](https://www.pokemon.com/us/legal/)
+
+<br/>
+
+## License
 
 <br/>
 

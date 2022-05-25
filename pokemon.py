@@ -69,7 +69,7 @@ class Pokemon:
         args = parser.parse_args() # read in args
         if args.num is not None:
             args.first, args.last = list(map(int,args.num.split('-')))
-        elif args.gen is not None:
+        if args.gen is not None:
             args.first, args.last = POKE_GENS[args.gen]
         pokes = list(range(args.first, args.last + 1))
         if args.starters:
