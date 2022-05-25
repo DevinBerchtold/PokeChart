@@ -1,8 +1,18 @@
 from pokemon import *
 import argparse
 
+
+
+ ######   #######  ##    ##  ######  ########    ###    ##    ## ########  ######
+##    ## ##     ## ###   ## ##    ##    ##      ## ##   ###   ##    ##    ##    ##
+##       ##     ## ####  ## ##          ##     ##   ##  ####  ##    ##    ##
+##       ##     ## ## ## ##  ######     ##    ##     ## ## ## ##    ##     ######
+##       ##     ## ##  ####       ##    ##    ######### ##  ####    ##          ##
+##    ## ##     ## ##   ### ##    ##    ##    ##     ## ##   ###    ##    ##    ##
+ ######   #######  ##    ##  ######     ##    ##     ## ##    ##    ##     ######
+
 SAVE_POKES = True
-SAVE_POKES_FORCED = True
+SAVE_POKES_FORCED = False
 SAVE_TYPES = True
 SAVE_SHEET = True
 
@@ -36,36 +46,25 @@ INDIVIDUAL_FILENAME = f'_image.png'
 GROUP_PREFIX = 'output/image_type_'
 GROUP_FILENAME = '.png'
 
-# TODO: Use this
-# def image_grid(imgs, rows, cols):
-#     assert len(imgs) == rows*cols
-#     w, h = imgs[0].size
-#     grid = Image.new('RGB', size=(cols*w, rows*h))
-#     grid_w, grid_h = grid.size
-#     for i, img in enumerate(imgs):
-#         grid.paste(img, box=(i%cols*w, i//cols*h))
-#     return grid
+
+
+##     ##    ###    #### ##    ##
+###   ###   ## ##    ##  ###   ##
+#### ####  ##   ##   ##  ####  ##
+## ### ## ##     ##  ##  ## ## ##
+##     ## #########  ##  ##  ####
+##     ## ##     ##  ##  ##   ###
+##     ## ##     ## #### ##    ##
 
 if __name__ == '__main__':
     if DEBUG: print('== D E B U G   O N ==\n')
-    parser = argparse.ArgumentParser(description='Which Pokemon?')
-    parser.add_argument('-f', '--first', type=int, default=POKE_GENS[1][0])
-    parser.add_argument('-l', '--last', type=int, default=POKE_GENS[1][1])
-    parser.add_argument('-g', '--gen', type=int, default=None)
-    parser.add_argument('-s', '--starters', action='store_true')
-    args = parser.parse_args() # read in args
-    if args.gen is not None:
-        args.first, args.last = POKE_GENS[args.gen]
-    poke_numbers = list(range(args.first, args.last + 1))
-    if args.starters:
-        poke_numbers = [x for x in poke_numbers if x in POKE_STARTERS]
-    print(f'First: {args.first}, Last: {args.last}, Total: {len(poke_numbers)}')
+    args = Pokemon.get_args()
 
     print('- Input -')
 
     # build pokemon data structures
     pokes = []
-    for i in poke_numbers:
+    for i in args.numbers:
         # p = Pokemon(i)
         p = time_print(Pokemon,f'Loading Pokemon #{i}... ',i)
         pokes.append(p)

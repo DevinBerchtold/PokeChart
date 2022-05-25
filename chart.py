@@ -101,7 +101,7 @@ def timed(func):
 class Colors:
     """Describes a weighted set of colors which represents an image (without pixel locations)"""
 
-    def __init__(self, quant=COLOR_QUANTIZE):
+    def __init__(self, filename=None, quant=COLOR_QUANTIZE):
         """Create an empty colors object.
         
         Args:
@@ -109,6 +109,8 @@ class Colors:
         """
         self.dictionary = {} # dict of (r, g, b): color_weight
         self._quantize = quant
+        if filename is not None:
+            self.addImage(filename)
 
     def __len__(self):
         return len(self.dictionary)
@@ -137,7 +139,11 @@ class Colors:
             if pal:
                 colors = [(n, (pal[c*3],pal[c*3+1],pal[c*3+2],255)) for n, c in colors]
 
-            colors_list = [(n, c[:3]) for n, c in colors if c[3] >= 192]
+            if len(colors[0][1]) == 4: # with an alpha value
+                colors_list = [(n, c[:3]) for n, c in colors if c[3] >= 192]
+            elif len(colors[0][1]) == 3: # no alpha value
+                colors_list = [(n, c) for n, c in colors]
+
             pixel_count = sum(n for n, _ in colors_list)
             for num, color in colors_list:
                 # Add to dictionary weighted according to coverage

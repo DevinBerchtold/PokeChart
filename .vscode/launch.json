@@ -11,7 +11,7 @@
             "program": "${file}",
             // "args": ["-g0"],
             // "args": ["-g0","-s"],
-            "args": ["-f1","-l3"],
+            "args": ["-n1-9"],
             "console": "integratedTerminal",
             "justMyCode": true
         }

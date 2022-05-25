@@ -4,13 +4,18 @@ import json
 import time
 import requests
 import os
+from pokemon import Pokemon
 # import yaml
 
-first_pokemon = 1
-last_pokemon = 905
-pokemon_numbers =list(range(first_pokemon, last_pokemon + 1))
-fail_pokemon = first_pokemon
-dex_source = '(?):'
+
+
+ ######   #######  ##    ##  ######  ########    ###    ##    ## ########  ######
+##    ## ##     ## ###   ## ##    ##    ##      ## ##   ###   ##    ##    ##    ##
+##       ##     ## ####  ## ##          ##     ##   ##  ####  ##    ##    ##
+##       ##     ## ## ## ##  ######     ##    ##     ## ## ## ##    ##     ######
+##       ##     ## ##  ####       ##    ##    ######### ##  ####    ##          ##
+##    ## ##     ## ##   ### ##    ##    ##    ##     ## ##   ###    ##    ##    ##
+ ######   #######  ##    ##  ######     ##    ##     ## ##    ##    ##     ######
 
 # These aren't in PokeDexAPI yet
 pokemon_overrides = {
@@ -118,6 +123,18 @@ def save_file(url, filename):
             handler.write(file)
         print(f'{url} ==> {filename} saved')
 
+
+
+##     ##    ###    #### ##    ##
+###   ###   ## ##    ##  ###   ##
+#### ####  ##   ##   ##  ####  ##
+## ### ## ##     ##  ##  ## ## ##
+##     ## #########  ##  ##  ####
+##     ## ##     ##  ##  ##   ###
+##     ## ##     ## #### ##    ##
+
+args = Pokemon.get_args()
+
 dex = {}
 if os.path.exists('pokedex.json'):
     dex = json.load(open('pokedex.json'))
@@ -130,7 +147,7 @@ if not os.path.exists('ss'):
 if not os.path.exists('output'):
     os.makedirs('output')
 
-for n in pokemon_numbers:
+for n in args.numbers:
     print(f'Pokemon #{n}')
     s = str(n)
     if s not in dex:

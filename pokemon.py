@@ -1,4 +1,5 @@
 import json
+import argparse
 from chart import *
 
 
@@ -57,6 +58,26 @@ class Pokemon:
     for t in POKE_TYPES:
         type_charts[t] = Chart()
         type_groups[t] = []
+
+    def get_args():
+        """Parse and return Pokemon arguments and a list of Pokemon"""
+        parser = argparse.ArgumentParser(description='Which Pokemon?')
+        parser.add_argument('-n', '--num', type=str, default='1-151', help="format: -n1-151")
+        parser.add_argument('-g', '--gen', type=int)
+        parser.add_argument('-s', '--starters', action='store_true')
+        parser.add_argument('-c', '--choices', type=int, default=5)
+        args = parser.parse_args() # read in args
+        if args.num is not None:
+            args.first, args.last = list(map(int,args.num.split('-')))
+        elif args.gen is not None:
+            args.first, args.last = POKE_GENS[args.gen]
+        pokes = list(range(args.first, args.last + 1))
+        if args.starters:
+            args.numbers = [x for x in pokes if x in POKE_STARTERS]
+        else:
+            args.numbers = pokes
+        print(f'First: {args.first}, Last: {args.last}, Total: {len(args.numbers)}')
+        return args
 
     def __init__(self, number: int, prefix: str='art/art_', suffix: str='.png'):
         """Create `Pokemon` from Pokedex number `number`.
