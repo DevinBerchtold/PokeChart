@@ -8,7 +8,7 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 
 ![Starter Pokémon color representations](image/starters.png "Starter Pokémon")
 
-<br/>
+---
 
 ## Installation
 
@@ -29,8 +29,6 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 
 3. Run [`scrape.py`](#scrapepy) to download input data
 
-<br/>
-
 ## Usage
 
 ### Download Pokédex Data
@@ -49,15 +47,17 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 
 1. Run [`who.py`](#whopy)
 
+#### Details
+
 <details>
 
-<summary>Details (Click to expand)</summary>
+<summary>(Click to expand)</summary>
 
 **Syntax:**
 
-```py who.py -l<first_pokemon> -f<last_pokemon> -c<number_of_choices>```
+```py who.py -n<first_pokemon>-<last_pokemon> -c<number_of_choices>```
 ```powershell
-py who.py -f1 -l151 -c5
+py who.py -n-151 -c5
 ```
 **Sample output:**
 ```
@@ -71,7 +71,7 @@ E: Marowak
 ```
 ![Colored circle clue](https://www.serebii.net/art/th/94.png "Clue 094 (Gengar)")
 
-<br/>
+---
 
 ```
 == Gengar ==
@@ -83,7 +83,7 @@ lives of those who become lost in mountains.
 
 </details>
 
-<br/>
+---
 
 ## Main Files
 
@@ -91,27 +91,7 @@ lives of those who become lost in mountains.
 
 ```mermaid
 graph LR
-    subgraph Download Input Pokédex Data
-        S(scrape.py)
-        A[art_###.png]
-        D[(pokedex.json)]
-        S ==>|append| D
-        S ==>|download| A
-    end
-    subgraph Generate Output Pokémon Images
-        W(who.py)
-        G(generate.py)
-        C[image_circle_#type#.png]
-        T[image_type_#type#.png]
-        I[art_###_image.png]
-        W ==>|image missing?| I
-        I .->|read| W
-        G ==>|SAVE_POKES| I
-        G ==>|SAVE_TYPES| T
-        G ==>|SAVE_SHEET| C
-    end
-    A .->|read| G
-    D .->|read| S & W & G
+    S[scrape.py] --> P[(Pokédex Data)] --> W[who.py] & G[generate.py] --> I[(Output Images)] .-> W
 ```
 
 ### `scrape.py`
@@ -133,7 +113,7 @@ Generates circle charts for a list of pokemon. Creates composite images.
 
 Shuffles a list of Pokémon to create a multiple choice "Who's That Pokémon?" game.
 
-<br/>
+---
 
 ## Classes
 
@@ -193,7 +173,7 @@ Defines `Color()` which contains a weighted list of colors and functions to perf
 
 Defines `Pokemon()` which describes a Pokémon and contains a `Chart()` to represent the Pokémon's colors and generate a chart.
 
-<br/>
+---
 
 ## Performance
 
@@ -209,7 +189,7 @@ We use a brute force method to calculate all possible arrangements of colors, sc
 
 This is very slow and makes the entire process O(n!). There has to be a better way.
 
-<br/>
+---
 
 ## Todo
 
@@ -219,7 +199,7 @@ This is very slow and makes the entire process O(n!). There has to be a better w
 - [ ] Investigate other clustering algorithms
 - [ ] Better color-matching algorithm
 
-<br/>
+---
 
 ## Credits
 
@@ -235,11 +215,9 @@ Pokémon art and characters are trademarks of Nintendo:
 
 [Pokémon Legal Information](https://www.pokemon.com/us/legal/)
 
-<br/>
+---
 
 ## License
-
-<br/>
 
 This project is released under the MIT license:
 
