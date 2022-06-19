@@ -57,7 +57,7 @@ PokéChart uses k-means grouping to make a simple, aesthetically pleasing chart 
 
 ```py who.py -n<first_pokemon>-<last_pokemon> -c<number_of_choices>```
 ```powershell
-py who.py -n-151 -c5
+py who.py -n1-151 -c5
 ```
 **Sample output:**
 ```
@@ -69,7 +69,7 @@ D: Caterpie
 E: Marowak
 * Showing clue. Close to reveal answer *
 ```
-![Colored circle clue](https://www.serebii.net/art/th/94.png "Clue 094 (Gengar)")
+![Colored circle clue](image/chart_094.png "Clue 094 (Gengar)")
 
 ---
 
@@ -79,7 +79,7 @@ It is said to emerge from darkness to steal the
 lives of those who become lost in mountains.
 ```
 
-![Gengar chart](image/chart_094.png "Answer 094 (Gengar)")
+![Gengar chart](https://www.serebii.net/art/th/94.png "Answer 094 (Gengar)")
 
 </details>
 
@@ -145,6 +145,7 @@ classDiagram
         removeBelow()
         removeFraction()
         removeBlack()
+        show3d()
     }
     class Chart {
         list sets
@@ -156,7 +157,16 @@ classDiagram
 
 ### `chart.py`
 
-Defines `Color()` which contains a weighted list of colors and functions to perform on the colors. Defines `Chart()` which extends `Color()` with functions to generate a color chart.
+Defines `Color` which contains a weighted list of colors and functions to perform on the colors. Defines `Chart` which extends `Color` with functions to generate a color chart.
+
+#### Color Analysis
+
+The `show3d()` function allows you to view a representation of a `Color` object in 3d RGB space. This can be used to analyze the color data and determine if the grouping is a good fit.
+
+| Venusaur | Charizard | Blastoise |
+|:-:|:-:|:-:|
+| [![Venusaur RGB chart](image/animation_003.webp "Venusaur")](image/animation_003.mp4) | [![Charizard RGB chart](image/animation_006.webp "Charizard")](image/animation_006.mp4) | [![Blastoise RGB chart](image/animation_009.webp "Blastoise")](image/animation_009.mp4) |
+| ![Venusaur chart](image/chart_003.png "Venusaur") | ![Charizard chart](image/chart_006.png "Charizard") | ![Blastoise chart](image/chart_009.png "Blastoise") |
 
 #### Chart Processing
 

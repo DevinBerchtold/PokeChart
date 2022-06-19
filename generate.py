@@ -1,5 +1,4 @@
 from pokemon import *
-import argparse
 
 
 
@@ -14,18 +13,19 @@ import argparse
 SAVE_POKES = True
 SAVE_POKES_FORCED = False
 SAVE_TYPES = True
+SAVE_TYPES_FORCED = False
 SAVE_SHEET = True
 
-INDIVIDUAL_KS = (1, 3, 5) # 7.047s
-# INDIVIDUAL_KS = (2, 4, 6) # 8.380s
-# INDIVIDUAL_KS = (3, 5, 7)
+INDIVIDUAL_KS = (1, 3, 5) # 7.047s *
+# INDIVIDUAL_KS = (2, 4, 6) # 8.380s *
+# INDIVIDUAL_KS = (1, 3, 5, 7) # 3.761s
 # INDIVIDUAL_KS = (1, 2, 4, 6)
 # v-- All these are SLOW --v
-# INDIVIDUAL_KS = (1, 3, 5, 7) # 11.820s
-# INDIVIDUAL_KS = (2, 4, 6, 8) # 23s
-# INDIVIDUAL_KS = (1, 3, 5, 7, 9) # 97.064s
-# INDIVIDUAL_KS = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) # 829.580s
-# INDIVIDUAL_KS = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11) # 14581.832s
+# INDIVIDUAL_KS = (1, 3, 5, 7) # 11.820s *
+# INDIVIDUAL_KS = (2, 4, 6, 8) # 23s *
+# INDIVIDUAL_KS = (1, 3, 5, 7, 9) # 97.064s *
+# INDIVIDUAL_KS = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10) # 829.580s *
+# INDIVIDUAL_KS = (1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11) # 14581.832s *
 
 KS_STRING = ''
 for k in INDIVIDUAL_KS:
@@ -100,7 +100,7 @@ if __name__ == '__main__':
             n = len(Pokemon.type_charts[t])
             if n > 10:
                 filename = GROUP_PREFIX + t + GROUP_FILENAME
-                Pokemon.type_charts[t].save(filename,size=GROUP_CHART_SIZE,ks=GROUP_KS,forced=True)
+                Pokemon.type_charts[t].save(filename,size=GROUP_CHART_SIZE,ks=GROUP_KS,forced=SAVE_TYPES_FORCED)
 
     if SAVE_SHEET:
         for t in POKE_TYPES:
@@ -130,7 +130,9 @@ if __name__ == '__main__':
                 size = CHART_SIZE/2
                 width = int(space * 2.15 * size * (0.5 + rows))
                 cent = (width - size) / 2
-                sheet = Image.new('RGBA', (width, width), COLOR_TRANSPARENT)
+                
+                pokes_sheet = Image.new('RGBA', (width, width), COLOR_TRANSPARENT)
+                chart_sheet = Image.new('RGBA', (width, width), COLOR_TRANSPARENT)
                 # Pokemon.type_groups[t].sort(key=lambda x: x.type_relations[t], reverse=True)
 
                 # add the center (aggregated) circle
@@ -140,7 +142,7 @@ if __name__ == '__main__':
                     cent_size = size * 2.4
                     cent_image.thumbnail((cent_size, cent_size))
                     cent_pos = int((width - cent_size) / 2)
-                    sheet.paste(cent_image, (cent_pos, cent_pos), cent_image)
+                    chart_sheet.paste(cent_image, (cent_pos, cent_pos), cent_image)
                 # else:
                 #     cent_size = size * 8.0  # huge
                 r = 1
@@ -160,12 +162,12 @@ if __name__ == '__main__':
                     size_g = float(size)*grow
                     image.thumbnail((size_g, size_g))
                     offset = int(size_g/2.0)
-                    sheet.paste(image, (x-offset, y-offset), image)
+                    chart_sheet.paste(image, (x-offset, y-offset), image)
 
                     image = Image.open(p.filename)
                     image.thumbnail((size, size))
                     offset = int(size/2.0)
-                    sheet.paste(image, (x-offset, y-offset), image)
+                    pokes_sheet.paste(image, (x-offset, y-offset), image)
                     num_left -= 1
 
                     # print(f'{p.filename} at {a} degrees')
@@ -182,8 +184,11 @@ if __name__ == '__main__':
                             a_offset += (a_step/2.0)
                         a = 0.0
 
-                filename = f'output/image_circle_{t}.png'
-                time_print(sheet.save,f'{filename} saving... ',filename)
+                filename = f'output/image_type_{t}_chart.png'
+                time_print(chart_sheet.save,f'{filename} saving... ',filename)
+
+                filename = f'output/image_type_{t}_pokes.png'
+                time_print(pokes_sheet.save,f'{filename} saving... ',filename)
 
     for p in pokes:
         del p

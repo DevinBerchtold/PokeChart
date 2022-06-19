@@ -2,6 +2,8 @@ from PIL import Image
 from PIL import ImageDraw
 import sklearn.cluster as cluster
 import matplotlib.pyplot as plt
+from matplotlib.animation import FuncAnimation
+plt.rcParams['animation.ffmpeg_path'] = 'C:/ffmpeg/bin/ffmpeg.exe'
 import numpy as np
 import itertools as it
 import multiprocessing as mp
@@ -23,8 +25,7 @@ DEBUG = False
 
 # CORES = 1
 # CORES = 4
-CORES = 6
-# CORES = 8
+CORES = 8
 
 CHART_SIZE = 512
 CHART_KS = (1, 3, 5)
@@ -191,9 +192,19 @@ class Colors:
         
         iprint(f'weight={self.totalWeight()}, len={len(self.dictionary)}')
 
-    def show3d(self):
+    def show3d(self, animation=None):
         d = self.dictionary
-        plt.style.use('dark_background')
+        style = {
+            'axes.facecolor': '00000000',
+            'figure.facecolor': '1e1e1e', # vscode gray
+            'figure.edgecolor': '1e1e1e', # vscode gray
+            'savefig.facecolor': '00000000',
+            'savefig.edgecolor': '00000000',
+            'figure.figsize': '6, 4',
+            'figure.dpi': '100', # 640x360 (16:9)
+        }
+
+        plt.style.use(['dark_background', style])
         # plt.suptitle('Colors', color='#1e1e1e')
         # print(plt.style.available)
         ks = d.keys()
@@ -206,21 +217,47 @@ class Colors:
         bs = [c[2] for c in cs]
         ss = [(s*100.0*COLOR_QUANTIZE)+10.0 for s in ss] # bigger
 
-        fig = plt.figure()
+        fig = plt.figure(figsize=(4,3))
         ax = fig.add_subplot(projection='3d')
-        ax.scatter(rs, gs, bs, s=ss, c=cs, marker='.') #s=ss, 
-
+        ax.set_box_aspect((1,1,1), zoom=1)
+        # ax.view_init(elev=14,azim=-45)
+        ax.scatter(rs, gs, bs, s=ss, c=cs, marker='.') #s=ss,
+        
         # Formatting
-        ax.set_xlabel('Red')
-        ax.set_ylabel('Green')
-        ax.set_zlabel('Blue')
-        fig.set_facecolor('#1e1e1e')
-        ax.set_facecolor('#1e1e1e')
         ax.grid(False)
+        # plt.axis('off')
+
+        ax.set_xlabel('R')
+        ax.set_ylabel('G')
+        ax.set_zlabel('B')
+        
         ax.w_xaxis.pane.fill = False
         ax.w_yaxis.pane.fill = False
         ax.w_zaxis.pane.fill = False
+        # ax.xaxis.pane.set_edgecolor('#0D111700')
+        # ax.yaxis.pane.set_edgecolor('#0D111700')
+        # ax.zaxis.pane.set_edgecolor('#0D111700')
+        ax.xaxis.pane.set_edgecolor('#1e1e1e00')
+        ax.yaxis.pane.set_edgecolor('#1e1e1e00')
+        ax.zaxis.pane.set_edgecolor('#1e1e1e00')
+        plt.subplots_adjust(bottom=0.04, top=1.14, left=0.05, right=0.925)
+        
+        if animation != None:
+            # step = 6.0
+            # sfps = 8
+            step = 1.0
+            sfps = 24
+            def animate_view(i):
+                ax.view_init(elev=14, azim=step*i-45)
 
+            ani = FuncAnimation(fig,animate_view,frames=int(360.0/step),interval=int(1000.0/sfps))
+            # ani.save(animation+'.gif', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'facecolor': '#1e1e1e'})
+            # ani.save(animation+'.webp', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'transparent': True, 'facecolor': 'none'})
+            ani.save(animation+'.mp4', writer='ffmpeg', fps=sfps, dpi=150,savefig_kwargs={'facecolor': '#1e1e1e'})
+
+            ## ani.save(animation+'.png', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'transparent': True, 'facecolor': 'none'})
+        
+        ax.view_init(elev=14,azim=-45)
         plt.show()
 
 
