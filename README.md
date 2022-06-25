@@ -191,7 +191,7 @@ The time required to generate the image depends mostly on the k-means clustering
 
 ### k-Means Clustering
 
-This calls `sklearn.cluster.MiniBatchKMeans()` to do all the work. It can be sped up a little by reducing the size of the input dataset, so the colors are quantized before clustering. Time increases (less than) linerly with `k`.
+This calls `sklearn.cluster.MiniBatchKMeans()` to do all the work. It can be sped up a little by reducing the size of the input dataset, so the colors are quantized before clustering. Time increases (less than) linearly with `k`.
 
 ### Color Permutation Matching
 

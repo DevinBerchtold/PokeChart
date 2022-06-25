@@ -196,10 +196,10 @@ class Colors:
         d = self.dictionary
         style = {
             'axes.facecolor': '00000000',
-            'figure.facecolor': '1e1e1e', # vscode gray
-            'figure.edgecolor': '1e1e1e', # vscode gray
-            'savefig.facecolor': '00000000',
-            'savefig.edgecolor': '00000000',
+            'figure.facecolor': '0D111700', # github gray
+            'figure.edgecolor': '0D111700', # github gray
+            'savefig.facecolor': '1e1e1e', # vscode gray
+            'savefig.edgecolor': '1e1e1e', # vscode gray
             'figure.figsize': '6, 4',
             'figure.dpi': '100', # 640x360 (16:9)
         }
@@ -220,7 +220,7 @@ class Colors:
         fig = plt.figure(figsize=(4,3))
         ax = fig.add_subplot(projection='3d')
         ax.set_box_aspect((1,1,1), zoom=1)
-        # ax.view_init(elev=14,azim=-45)
+        # ax.view_init(elev=13,azim=-45)
         ax.scatter(rs, gs, bs, s=ss, c=cs, marker='.') #s=ss,
         
         # Formatting
@@ -231,16 +231,16 @@ class Colors:
         ax.set_ylabel('G')
         ax.set_zlabel('B')
         
-        ax.w_xaxis.pane.fill = False
-        ax.w_yaxis.pane.fill = False
-        ax.w_zaxis.pane.fill = False
+        # ax.w_xaxis.pane.fill = False
+        # ax.w_yaxis.pane.fill = False
+        # ax.w_zaxis.pane.fill = False
         # ax.xaxis.pane.set_edgecolor('#0D111700')
         # ax.yaxis.pane.set_edgecolor('#0D111700')
         # ax.zaxis.pane.set_edgecolor('#0D111700')
-        ax.xaxis.pane.set_edgecolor('#1e1e1e00')
-        ax.yaxis.pane.set_edgecolor('#1e1e1e00')
-        ax.zaxis.pane.set_edgecolor('#1e1e1e00')
-        plt.subplots_adjust(bottom=0.04, top=1.14, left=0.05, right=0.925)
+        ax.w_xaxis.set_pane_color((0.03,0.03,0.02,1.0))
+        ax.w_yaxis.set_pane_color((0.06,0.06,0.06,1.0))
+        ax.w_zaxis.set_pane_color((0.09,0.09,0.10,1.0))
+        plt.subplots_adjust(bottom=0.035, top=1.135, left=0.05, right=0.925)
         
         if animation != None:
             # step = 6.0
@@ -248,16 +248,17 @@ class Colors:
             step = 1.0
             sfps = 24
             def animate_view(i):
-                ax.view_init(elev=14, azim=step*i-45)
+                ax.view_init(elev=13, azim=step*i-45)
 
             ani = FuncAnimation(fig,animate_view,frames=int(360.0/step),interval=int(1000.0/sfps))
-            # ani.save(animation+'.gif', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'facecolor': '#1e1e1e'})
-            # ani.save(animation+'.webp', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'transparent': True, 'facecolor': 'none'})
-            ani.save(animation+'.mp4', writer='ffmpeg', fps=sfps, dpi=150,savefig_kwargs={'facecolor': '#1e1e1e'})
-
-            ## ani.save(animation+'.png', writer='pillow', fps=sfps, dpi=75,savefig_kwargs={'transparent': True, 'facecolor': 'none'})
+            if animation[-4:] == '.gif':
+                ani.save(animation, writer='pillow', fps=sfps, dpi=75, savefig_kwargs={'facecolor': '#1e1e1e'})
+            elif animation[-4:] == '.mp4':
+                ani.save(animation, writer='ffmpeg', fps=sfps, dpi=150,savefig_kwargs={'facecolor': '#1e1e1e'})
+            else:
+                ani.save(animation, writer='pillow', fps=sfps, dpi=75, savefig_kwargs={'transparent': True, 'facecolor': 'none'})
         
-        ax.view_init(elev=14,azim=-45)
+        ax.view_init(elev=13,azim=-45)
         plt.show()
 
 
