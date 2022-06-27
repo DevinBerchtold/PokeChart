@@ -30,9 +30,10 @@ if __name__ == '__main__':
             time_print(p.chart.save,"Chart is missing. Generating... ",filename, quiet=True)
             del p
     
-        print('* Showing clue. Close to reveal answer *', end='\r')
+        # print('* Showing clue. Close to reveal answer *', end='\r')
         image = Image.open(filename)
         image.show()
+        input('Press enter to continue...')
     
         print('                                        ')
         print(f"== {answer['name']} ==")
@@ -40,3 +41,4 @@ if __name__ == '__main__':
     
         answer = Image.open(f'art/art_{string}.png')
         answer.show()
+        input('Press enter to continue...')
