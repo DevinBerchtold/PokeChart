@@ -4,6 +4,9 @@ from pokemon import *
 import random
 import json
 
+def print_over(string):
+    print('\033[1A'+string+'\033[K')
+
 if __name__ == '__main__':
     args = Pokemon.get_args()
     poke_numbers = args.numbers
@@ -14,7 +17,7 @@ if __name__ == '__main__':
     while True:
         random.shuffle(poke_numbers)
     
-        print("== Who's That Pokemon!?! ==")
+        print_over("== Who's That Pokemon!?! ==")
     
         choices = poke_numbers[:args.choices] # take first n elements from list
         random.shuffle(choices)
@@ -33,9 +36,9 @@ if __name__ == '__main__':
         # print('* Showing clue. Close to reveal answer *', end='\r')
         image = Image.open(filename)
         image.show()
-        input('Press enter to continue...')
+        input('Press enter to reveal answer...')
     
-        print('                                        ')
+        print_over('                                        ')
         print(f"== {answer['name']} ==")
         print(answer['description']+'\n')
     

@@ -16,9 +16,9 @@ SAVE_TYPES = True
 SAVE_TYPES_FORCED = False
 SAVE_SHEET = True
 
-INDIVIDUAL_KS = (1, 3, 5) # 7.047s *
+# INDIVIDUAL_KS = (1, 3, 5) # 7.047s *
 # INDIVIDUAL_KS = (2, 4, 6) # 8.380s *
-# INDIVIDUAL_KS = (1, 3, 5, 7) # 3.761s
+INDIVIDUAL_KS = (1, 3, 5, 7) # 3.761s
 # INDIVIDUAL_KS = (1, 2, 4, 6)
 # v-- All these are SLOW --v
 # INDIVIDUAL_KS = (1, 3, 5, 7) # 11.820s *
@@ -33,7 +33,7 @@ for k in INDIVIDUAL_KS:
 
 # GROUP_KS = (3, 5, 7, 9)
 # GROUP_KS = (2, 4, 6, 8)
-GROUP_KS = (1, 3, 5, 7)
+GROUP_KS = (1, 3, 5, 7, 9)
 
 GROUP_THRESHOLD = 0.10
 GROUP_CHART_SIZE = CHART_SIZE * 4

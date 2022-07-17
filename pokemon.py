@@ -1,4 +1,5 @@
 import json
+import os
 import argparse
 from chart import *
 
@@ -50,7 +51,10 @@ class Pokemon:
     Attributes:
         dex: Dictionary of all Pokemon information by Pokedex number.
     """
-    dex = {int(k):v for k,v in json.load(open('pokedex.json')).items()}
+    if os.path.exists('pokedex.json'):
+        dex = {int(k):v for k,v in json.load(open('pokedex.json')).items()}
+    else:
+        dex = {}
 
     all_colors = Colors()
     type_charts = {}

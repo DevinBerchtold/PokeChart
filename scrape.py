@@ -99,12 +99,12 @@ def get_pokemon(num):
 
     # Get first flavor text from this list (oldest for each pokemon)
     versions = ["red","blue","yellow","gold","silver","crystal","ruby","sapphire","emerald","diamond","pearl","platinum","black","white","x","y","sun","moon","sword","shield"]
-    versions = reversed(versions) # newest
+    # versions = reversed(versions) # newest
     for v in versions:
         for n in pokemon_species['flavor_text_entries']:
             if n['language']['name'] == lang:
                 if n['version']['name'] == v:
-                    pokemon['description'] = n['flavor_text']
+                    pokemon['description'] = n['flavor_text'].replace('\x0c', '\n')
                     dex_source = f'({v}):'.ljust(11)
                     break
         else:
