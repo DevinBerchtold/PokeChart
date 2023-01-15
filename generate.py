@@ -1,4 +1,6 @@
 from pokemon import *
+from PIL import ImageEnhance
+from PIL import ImageFilter
 
 
 
@@ -33,7 +35,7 @@ for k in INDIVIDUAL_KS:
 
 # GROUP_KS = (3, 5, 7, 9)
 # GROUP_KS = (2, 4, 6, 8)
-GROUP_KS = (1, 3, 5, 7, 9)
+GROUP_KS = (1, 2, 4, 6, 8, 10)
 
 GROUP_THRESHOLD = 0.10
 GROUP_CHART_SIZE = CHART_SIZE * 4
@@ -55,6 +57,11 @@ GROUP_FILENAME = '.png'
 ##     ## #########  ##  ##  ####
 ##     ## ##     ##  ##  ##   ###
 ##     ## ##     ## #### ##    ##
+
+def paste_shadow(a, b):
+    dark = ImageEnhance.Brightness(b).enhance(0.0)
+    shadow = dark.filter(ImageFilter.GaussianBlur(10))
+    return Image.alpha_composite(Image.alpha_composite(a, shadow), b)
 
 if __name__ == '__main__':
     if DEBUG: print('== D E B U G   O N ==\n')
@@ -106,14 +113,20 @@ if __name__ == '__main__':
         for t in POKE_TYPES:
             num = len(Pokemon.type_groups[t])
             if num > 1:
-                space = 1.28
+                space = 2.0
                 center = True
 
                 if center:
                     # n = 5  # number of extra circles each row
+                    # n = 6  # number of extra circles each row
+                    # m = 9  # number of circles in the first row
+                    # start_radius = 0.5
                     n = 6  # number of extra circles each row
-                    m = 9  # number of circles in the first row
-                    start_radius = 0.5
+                    m = 8  # number of circles in the first row
+                    start_radius = 0.35
+                    # n = 6  # number of extra circles each row
+                    # m = 7  # number of circles in the first row
+                    # start_radius = 0.20
                 else:
                     n = 6  # number of extra circles each row
                     m = 3  # number of circles in the first row
@@ -128,8 +141,12 @@ if __name__ == '__main__':
                     sub += n
 
                 size = CHART_SIZE/2
-                width = int(space * 2.15 * size * (0.5 + rows))
+                width = int(space * 2.07 * size * (1 + rows))
                 cent = (width - size) / 2
+                chart_scale = 2.0
+                poke_scale = 1.40
+                # cent_scale = 3.89
+                cent_scale = 3.2
                 
                 pokes_sheet = Image.new('RGBA', (width, width), COLOR_TRANSPARENT)
                 chart_sheet = Image.new('RGBA', (width, width), COLOR_TRANSPARENT)
@@ -139,12 +156,18 @@ if __name__ == '__main__':
                 if center:
                     cent_file = GROUP_PREFIX + t + GROUP_FILENAME
                     cent_image = Image.open(cent_file)
-                    cent_size = size * 2.4
+                    cent_size = size * cent_scale
                     cent_image.thumbnail((cent_size, cent_size))
                     cent_pos = int((width - cent_size) / 2)
                     chart_sheet.paste(cent_image, (cent_pos, cent_pos), cent_image)
-                # else:
-                #     cent_size = size * 8.0  # huge
+
+                    icon_image = Image.open(f'image/icon_{t}.png')
+                    # icon_size = cent_size * 0.40
+                    icon_size = cent_size * 0.52
+                    icon_image.thumbnail((icon_size, icon_size))
+                    icon_pos = int((width - icon_size) / 2)
+                    pokes_sheet.paste(icon_image, (icon_pos, icon_pos), icon_image)
+
                 r = 1
                 a_step = 360.0 / m
                 a_offset = (a_step/2.0)
@@ -152,28 +175,27 @@ if __name__ == '__main__':
                 num_left = len(Pokemon.type_groups[t])
                 for p in Pokemon.type_groups[t]:
                     rad = (a+a_offset) * (math.pi / 180.0)
-                    grow = 1.28
 
                     magnitude = size * (start_radius + r) * space
                     x = int((width/2.0) + (math.cos(rad) * magnitude))
                     y = int((width/2.0) + (math.sin(rad) * magnitude))
 
                     image = Image.open(p.chartname)
-                    size_g = float(size)*grow
+                    size_g = float(size)*chart_scale
                     image.thumbnail((size_g, size_g))
                     offset = int(size_g/2.0)
                     chart_sheet.paste(image, (x-offset, y-offset), image)
 
                     image = Image.open(p.filename)
-                    image.thumbnail((size, size))
-                    offset = int(size/2.0)
+                    size_g = float(size)*poke_scale
+                    image.thumbnail((size_g, size_g))
+                    offset = int(size_g/2.0)
                     pokes_sheet.paste(image, (x-offset, y-offset), image)
                     num_left -= 1
 
-                    # print(f'{p.filename} at {a} degrees')
                     a += a_step
                     if (a >= 359.0):
-                        # space = space + 0.05
+                        space = space + 0.015
 
                         r = r + 1
                         x = m + ((r-1) * n)  # number of circles in the next row
@@ -184,11 +206,20 @@ if __name__ == '__main__':
                             a_offset += (a_step/2.0)
                         a = 0.0
 
-                filename = f'output/image_type_{t}_chart.png'
-                time_print(chart_sheet.save,f'{filename} saving... ',filename)
+                # filename = f'output/image_type_{t}_chart.png' # Only Charts
+                # time_print(chart_sheet.save,f'{filename} saving... ',filename)
+                # filename = f'output/image_type_{t}_pokes.png' # Only Pokemon
+                # time_print(pokes_sheet.save,f'{filename} saving... ',filename)
 
-                filename = f'output/image_type_{t}_pokes.png'
-                time_print(pokes_sheet.save,f'{filename} saving... ',filename)
+                pokes_dark = ImageEnhance.Brightness(pokes_sheet).enhance(0.0)
+                pokes_shadow = pokes_dark.filter(ImageFilter.GaussianBlur(10))
+                # filename = f'output/image_type_{t}_pokes_shadow.png' # Only Shadows
+                # time_print(pokes_shadow.save,f'{filename} saving... ',filename)
+
+                pokes_combined = Image.alpha_composite(Image.alpha_composite(chart_sheet, pokes_shadow), pokes_sheet)
+                pokes_combined.thumbnail((width/4, width/4))
+                filename = f'output/sheet_type_{t}_pokes.png' # Composite image
+                time_print(pokes_combined.save,f'{filename} saving... ',filename)
 
     for p in pokes:
         del p

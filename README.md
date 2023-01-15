@@ -197,13 +197,14 @@ This calls `sklearn.cluster.MiniBatchKMeans()` to do all the work. It can be spe
 
 We use a brute force method to calculate all possible arrangements of colors, score them, and pick the best. The scoring is highly parallel so we use `multiprocessing.Pool` to calculate scores with multiple threads. The number of permutations to be calculated scales with `(k-1)!` so this grows very quickly with high `k`.
 
-This is very slow and makes the entire process O(n!). There has to be a better way.
+This is very slow and makes the entire process `O(n!)` where `n` is the number of color groupings. There has to be a better way.
 
 ---
 
 ## Todo
 
 - [x] Color charts
+- [x] Generation 9 Pokemon
 - [ ] Mega Evolutions
 - [ ] Optimize k-means performance
 - [ ] Investigate other clustering algorithms

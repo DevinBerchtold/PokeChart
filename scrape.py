@@ -19,59 +19,23 @@ from pokemon import Pokemon
 
 # These aren't in PokeDexAPI yet
 pokemon_overrides = {
-    '899': {
-        'id': 899,
-        'name': 'Wyrdeer',
-        'types': ['normal', 'psychic'],
-        'stats': {'hp': 103, 'attack': 105, 'defense': 72, 'special-attack': 105, 'special-defense': 75, 'speed': 65},
-        'description': "The black orbs shine with an uncanny light when the\nPok\u00e9mon is erecting invisible barriers. The fur\nshed from its beard retains heat well and is a\nhighly useful material for winter clothing."
-    },
-    '900': {
-        'id': 900,
-        'name': 'Kleavor',
-        'types': ['bug', 'rock'],
-        'stats': {'hp': 70, 'attack': 135, 'defense': 95, 'special-attack': 45, 'special-defense': 70, 'speed': 85},
-        'description': "A violent creature that fells towering trees with\nits crude axes and shields itself with hard stone.\nIf one should chance upon this Pok\u00e9mon in the\nwilds, one's only recourse is to flee."
-    },
-    '901': {
-        'id': 901,
-        'name': 'Ursaluna',
-        'types': ['normal', 'ground'],
-        'stats': { 'hp': 130, 'attack': 140, 'defense': 105, 'special-attack': 45, 'special-defense': 80, 'speed': 50},
-        'description': "I believe it was Hisui's swampy terrain that gave\nUrsaluna its burly physique and newfound capacity\nto manipulate peat at will."
-    },
-    '902': {
-        'id': 902,
-        'name': 'Basculegion: Male',
-        'types': ['water', 'ghost'],
-        'stats': { 'hp': 120, 'attack': 112, 'defense': 65, 'special-attack': 80, 'special-defense': 75, 'speed': 78},
-        'description': "Clads itself in the souls of comrades that perished\nbefore fulfilling their goals of journeying\nupstream. No other species throughout all Hisui's\nrivers is Basculegion's equal."
-    },
-    '903': {
-        'id': 903,
-        'name': 'Sneasler',
-        'types': ['poison', 'fighting'],
-        'stats': { 'hp': 80, 'attack': 130, 'defense': 60, 'special-attack': 40, 'special-defense': 80, 'speed': 120},
-        'description': "Because of Sneasler's virulent poison and daunting\nphysical prowess, no other species could hope to\nbest it on the frozen highlands. Preferring\nsolitude, this species does not form packs."
-    },
-    '904': {
-        'id': 904,
-        'name': 'Overqwil',
-        'types': ['dark', 'poison'],
-        'stats': { 'hp': 85, 'attack': 115, 'defense': 95, 'special-attack': 65, 'special-defense': 65, 'speed': 85},
-        'description': "Its lancelike spikes and savage temperament have\nearned it the nickname \"sea fiend.\" It slurps up\npoison to nourish itself."
-    },
-    '905': {
-        'id': 905,
-        'name': 'Enamorous: Incarnate Forme',
-        'types': ['fairy', 'flying'],
-        'stats': { 'hp': 74, 'attack': 115, 'defense': 70, 'special-attack': 135, 'special-defense': 80, 'speed': 106},
-        'description': "When it flies to this land from across the sea,\nthe bitter winter comes to an end. According to\nlegend, this Pok\u00e9mon's love gives rise to the\nbudding of fresh life across Hisui."
-    },
+    # Not neccessary right now
+}
+# PokeAPI IDs don't match Serebii IDs for last gen so we convert ID to names
+pokemon_names = {
+    906: 'sprigatito', 907: 'floragato', 908: 'meowscarada', 909: 'fuecoco', 910: 'crocalor', 911: 'skeledirge', 912: 'quaxly', 913: 'quaxwell', 914: 'quaquaval', 915: 'lechonk', 916: 'oinkologne', 917: 'tarountula',
+    918: 'spidops', 919: 'nymble', 920: 'lokix', 921: 'pawmi', 922: 'pawmo', 923: 'pawmot', 924: 'tandemaus', 925: 'maushold', 926: 'fidough', 927: 'dachsbun', 928: 'smoliv', 929: 'dolliv', 
+    930: 'arboliva', 931: 'squawkabilly', 932: 'nacli', 933: 'naclstack', 934: 'garganacl', 935: 'charcadet', 936: 'armarouge', 937: 'ceruledge', 938: 'tadbulb', 939: 'bellibolt', 940: 'wattrel', 941: 'kilowattrel', 
+    942: 'maschiff', 943: 'mabosstiff', 944: 'shroodle', 945: 'grafaiai', 946: 'bramblin', 947: 'brambleghast', 948: 'toedscool', 949: 'toedscruel', 950: 'klawf', 951: 'capsakid', 952: 'scovillain', 953: 'rellor', 
+    954: 'rabsca', 955: 'flittle', 956: 'espathra', 957: 'tinkatink', 958: 'tinkatuff', 959: 'tinkaton', 960: 'wiglett', 961: 'wugtrio', 962: 'bombirdier', 963: 'finizen', 964: 'palafin', 965: 'varoom',
+    966: 'revavroom', 967: 'cyclizar', 968: 'orthworm', 969: 'glimmet', 970: 'glimmora', 971: 'greavard', 972: 'houndstone', 973: 'flamigo', 974: 'cetoddle', 975: 'cetitan', 976: 'veluza', 977: 'dondozo', 
+    978: 'tatsugiri', 979: 'annihilape', 980: 'clodsire', 981: 'farigiraf', 982: 'dudunsparce', 983: 'kingambit', 984: 'great-tusk', 985: 'scream-tail', 986: 'brute-bonnet', 987: 'flutter-mane', 988: 'slither-wing',
+    989: 'sandy-shocks', 990: 'iron-treads', 991: 'iron-bundle', 992: 'iron-hands', 993: 'iron-jugulis', 994: 'iron-moth', 995: 'iron-thorns', 996: 'frigibax', 997: 'arctibax', 998: 'baxcalibur', 999: 'gimmighoul',
+    1000: 'gholdengo', 1001: 'wo-chien', 1002: 'chien-pao', 1003: 'ting-lu', 1004: 'chi-yu', 1005: 'roaring-moon', 1006: 'iron-valiant', 1007: 'koraidon', 1008: 'miraidon'
 }
 
 headers = {
-    'User-Agent': 'Pokemon Colors (https://???.com/, v0.0.1)',
+    'User-Agent': 'PokeChart (https://github.com/DevinBerchtold/PokeChart/, v0.0.2)',
     'Accept': 'application/json'
 }
 
@@ -86,8 +50,13 @@ def get_pokemon(num):
     # https://pokeapi.co/api/v2/pokemon/{id or name}/
     lang = 'en'
     global dex_source
-    pokemon_species = get(f'https://pokeapi.co/api/v2/pokemon-species/{num}/')
-    pokemon_data = get(f'https://pokeapi.co/api/v2/pokemon/{num}')
+
+    if num in pokemon_names: # If we have a name, access by name instead of ID
+        pokemon_species = get(f'https://pokeapi.co/api/v2/pokemon-species/{pokemon_names[num]}/')
+        pokemon_data = get(f'https://pokeapi.co/api/v2/pokemon/{pokemon_names[num]}')
+    else:
+        pokemon_species = get(f'https://pokeapi.co/api/v2/pokemon-species/{num}/')
+        pokemon_data = get(f'https://pokeapi.co/api/v2/pokemon/{num}')
     pokemon = {k: pokemon_data[k] for k in ('id', 'name')}
 
     pokemon['types'] = [t['type']['name'] for t in pokemon_data['types']]
@@ -98,20 +67,22 @@ def get_pokemon(num):
             pokemon['name'] = n['name']
 
     # Get first flavor text from this list (oldest for each pokemon)
-    versions = ["red","blue","yellow","gold","silver","crystal","ruby","sapphire","emerald","diamond","pearl","platinum","black","white","x","y","sun","moon","sword","shield"]
+    versions = ["red","blue","yellow","gold","silver","crystal","ruby","sapphire","emerald","diamond","pearl","platinum","black","white","x","y","sun","moon","sword","shield","scarlet","violet","legends-arceus"]
     # versions = reversed(versions) # newest
-    for v in versions:
-        for n in pokemon_species['flavor_text_entries']:
-            if n['language']['name'] == lang:
-                if n['version']['name'] == v:
-                    pokemon['description'] = n['flavor_text'].replace('\x0c', '\n')
-                    dex_source = f'({v}):'.ljust(11)
-                    break
-        else:
-            continue
-        break
+    if pokemon_species['flavor_text_entries']:
+        for v in versions:
+            for n in pokemon_species['flavor_text_entries']:
+                if n['language']['name'] == lang:
+                    if n['version']['name'] == v:
+                        pokemon['description'] = n['flavor_text'].replace('\x0c', '\n')
+                        dex_source = f'({v}):'.ljust(11)
+                        break
+            else:
+                continue
+            break
     if 'description' not in pokemon:
         pokemon['description'] = 'Description unavailable'
+        dex_source = f'(???):'.ljust(11)
     return pokemon
 
 def save_file(url, filename):
@@ -142,8 +113,8 @@ if os.path.exists('pokedex.json'):
 # Create directories if they don't exist
 if not os.path.exists('art'):
     os.makedirs('art')
-if not os.path.exists('ss'):
-    os.makedirs('ss')
+if not os.path.exists('game'):
+    os.makedirs('game')
 if not os.path.exists('output'):
     os.makedirs('output')
 
@@ -168,8 +139,11 @@ for n in args.numbers:
             # curl https://www.serebii.net/pokemon/art/[001-905].png -o "art_#1.png"
             save_file(f'https://www.serebii.net/pokemon/art/{n:03d}.png', f'art/art_{n:03d}.png')
 
-            # curl https://www.serebii.net/swordshield/pokemon/[001-905].png -o "ss_#1.png"
-            save_file(f'https://www.serebii.net/swordshield/pokemon/{n:03d}.png', f'ss/ss_{n:03d}.png')
+            # curl https://www.serebii.net/swordshield/pokemon/[001-905].png -o "game_#1.png"
+            if n <= 905:
+                save_file(f'https://www.serebii.net/swordshield/pokemon/{n:03d}.png', f'game/game_{n:03d}.png')
+            else: # New gen images are under different URL
+                save_file(f'https://www.serebii.net/scarletviolet/pokemon/{n:03d}.png', f'game/game_{n:03d}.png')
         except (requests.exceptions.HTTPError, requests.exceptions.ConnectionError):
             print(f'Exception on {n}. (Serebii is mad)')
             break
@@ -184,7 +158,7 @@ json.dump(dex, open('pokedex.json', 'w'), indent='\t')
 print(f'Wrote pokedex.json with {len(dex)} Pokemon')
 
 
-# YAML copy for readability
+# # YAML copy for readability
 # def str_presenter(dumper, data):
 #     if len(data) > 40:
 #         return dumper.represent_scalar('tag:yaml.org,2002:str', data, style='\"')

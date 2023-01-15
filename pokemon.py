@@ -13,7 +13,7 @@ from chart import *
 ##    ## ##     ## ##   ### ##    ##    ##    ##     ## ##   ###    ##    ##    ##
  ######   #######  ##    ##  ######     ##    ##     ## ##    ##    ##     ######
 
-IMAGE_PREFIXES = [('art', 1, 32), ('ss', 1, 0)]
+IMAGE_PREFIXES = [('art', 1, 32), ('game', 1, 0)]
 # for prefix, weight, remove_black in IMAGE_PREFIXES:
 #     PREFIX_STRING += str(weight) + prefix[0] + str(remove_black) + '_'
 
@@ -21,7 +21,7 @@ POKE_TYPES = ['grass', 'poison', 'fire', 'flying', 'water', 'bug', 'normal', 'el
 POKE_STATS = ['hp', 'attack', 'defense', 'special-attack', 'special-defense', 'speed']
 # Pokemon numbers to process
 POKE_GENS = {
-    0: (1, 905), # All generations
+    0: (1, 1008), # All generations
     1: (1, 151),
     2: (152, 251),
     3: (252, 386),
@@ -29,10 +29,11 @@ POKE_GENS = {
     5: (494, 649),
     6: (650, 721),
     7: (722, 807),
-    8: (808, 905)
+    8: (808, 905),
+    9: (906, 1008)
 }
 POKE_STARTERS = []
-for x in [1, 152, 252, 387, 495, 650, 722, 810]:
+for x in [1, 152, 252, 387, 495, 650, 722, 810, 906]:
     POKE_STARTERS += range(x, x + 9)
 
 
